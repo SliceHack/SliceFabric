@@ -15,6 +15,7 @@ import com.sliceclient.util.ResourceUtil;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
+import net.minecraft.entity.LivingEntity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -58,6 +59,8 @@ public enum Slice {
     public String playTime, totalPlayTime;
 
     private final String date;
+
+    public LivingEntity target;
 
     Slice() {
         eventManager = new EventManager();

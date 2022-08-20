@@ -8,7 +8,6 @@ import net.montoyo.mcef.api.IBrowser;
 import net.montoyo.mcef.api.IDisplayHandler;
 import net.montoyo.mcef.api.IJSQueryHandler;
 import net.montoyo.mcef.api.IScheme;
-import net.montoyo.mcef.example.ExampleMod;
 import net.montoyo.mcef.remote.RemoteConfig;
 import net.montoyo.mcef.utilities.IProgressListener;
 import net.montoyo.mcef.utilities.Log;
@@ -47,12 +46,8 @@ public class ClientProxy extends BaseProxy {
     private final DisplayHandler displayHandler = new DisplayHandler();
     private final HashMap<String, String> mimeTypeMap = new HashMap<>();
     private final AppHandler appHandler = new AppHandler();
-    private ExampleMod exampleMod;
-
     @Override
     public void onPreInit() {
-        exampleMod = new ExampleMod();
-        exampleMod.onPreInit(); //Do it even if example mod is disabled because it registers the "mod://" scheme
     }
 
     @Override
@@ -150,10 +145,6 @@ public class ClientProxy extends BaseProxy {
 
         // If shutdown patcher fail runs shutdown patcher
         // removed!
-
-        if (MCEF.ENABLE_EXAMPLE)
-            exampleMod.onInit();
-
         Log.info("MCEF loaded successfuly.");
 
         ClientTickEvents.START_CLIENT_TICK.register(client -> this.onTickStart());
@@ -197,8 +188,6 @@ public class ClientProxy extends BaseProxy {
 
     @Override
     public void openExampleBrowser(String url) {
-        if (MCEF.ENABLE_EXAMPLE)
-            exampleMod.showScreen(url);
     }
 
     @Override

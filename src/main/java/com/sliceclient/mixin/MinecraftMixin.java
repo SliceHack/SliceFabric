@@ -2,11 +2,23 @@ package com.sliceclient.mixin;
 
 import com.sliceclient.Slice;
 import com.sliceclient.SliceMain;
+import com.sliceclient.event.events.EventClientTick;
 import com.sliceclient.event.events.EventResize;
 import com.sliceclient.util.TimerUtil;
+import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredicateProviderRegistry;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.item.UnclampedModelPredicateProvider;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
+import net.minecraft.item.SwordItem;
+import net.minecraft.util.Identifier;
+import net.minecraft.util.registry.Registry;
 import net.montoyo.mcef.MCEF;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -21,6 +33,8 @@ public class MinecraftMixin {
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void tick(CallbackInfo ci) {
+        EventClientTick event = new EventClientTick();
+        event.call();
         TimerUtil.timer = renderTickCounter;
     }
 

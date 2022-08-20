@@ -172,6 +172,7 @@ public class Util {
      */
     public static boolean download(String res, File dst, boolean gzip, IProgressListener ph) {
         String err = "Couldn't download " + dst.getName() + "!";
+        if(dst.exists()) return true;
         
         ph = secure(ph);
         boolean isLegacy = MCEF.FORCE_LEGACY_VERSION;

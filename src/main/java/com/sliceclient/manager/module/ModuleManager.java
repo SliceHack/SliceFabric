@@ -1,6 +1,7 @@
 package com.sliceclient.manager.module;
 
 import com.sliceclient.module.Module;
+import com.sliceclient.module.modules.combat.Aura;
 import com.sliceclient.module.modules.movement.Fly;
 import lombok.Getter;
 
@@ -20,6 +21,7 @@ public class ModuleManager {
 
     public ModuleManager() {
         register(new Fly());
+        register(new Aura());
     }
 
     /**

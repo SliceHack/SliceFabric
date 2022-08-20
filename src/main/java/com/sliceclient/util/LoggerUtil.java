@@ -24,7 +24,7 @@ public class LoggerUtil {
         if(MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().world == null)
             return;
 
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable(
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(
                 "§cSlice §7» " + message.replace("&", "§")
         ));
     }
@@ -39,7 +39,7 @@ public class LoggerUtil {
         if(MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().world == null)
             return;
 
-        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.translatable(message));
+        MinecraftClient.getInstance().inGameHud.getChatHud().addMessage(Text.literal(message));
     }
 
     /**

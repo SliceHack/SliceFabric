@@ -2,10 +2,14 @@ package com.sliceclient.module;
 
 import com.sliceclient.Slice;
 import com.sliceclient.cef.RequestHandler;
+import com.sliceclient.manager.notification.NotificationManager;
+import com.sliceclient.manager.notification.Type;
 import com.sliceclient.module.data.Category;
 import com.sliceclient.module.data.ModuleInfo;
+import com.sliceclient.notification.Notification;
 import com.sliceclient.setting.Setting;
 import com.sliceclient.setting.settings.ModeValue;
+import com.sliceclient.util.Timer;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
@@ -25,6 +29,7 @@ public class Module {
 
     /** module fields */
     protected MinecraftClient mc = MinecraftClient.getInstance();
+    protected Timer timer = new Timer();
 
     /** Info */
     private final ModuleInfo info = getClass().getAnnotation(ModuleInfo.class);
@@ -73,6 +78,8 @@ public class Module {
 
         if(enabled) RequestHandler.addToArrayList(getMode() != null ? name + " " + getMode().getValue() : name);
         else RequestHandler.removeFromArrayList(getMode() != null ? name + " " + getMode().getValue() : name);
+
+        NotificationManager.queue(new Notification(Type.INFO, (enabled ? "Enabled" : "Disabled") + " " + name, 2));
     }
 
     /**
