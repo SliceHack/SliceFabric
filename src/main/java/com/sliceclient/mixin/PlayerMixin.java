@@ -1,6 +1,7 @@
 package com.sliceclient.mixin;
 
 import com.sliceclient.event.events.EventUpdate;
+import com.sliceclient.util.MoveUtil;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
@@ -61,6 +62,9 @@ public class PlayerMixin {
             double f = event.getZ() - this.lastZ;
             double g = event.getYaw() - this.lastYaw;
             double h = event.getPitch() - this.lastPitch;
+            MoveUtil.x = event.getX();
+            MoveUtil.y = event.getY();
+            MoveUtil.z = event.getY();
             ++this.ticksSinceLastPositionPacketSent;
             boolean bl3 = MathHelper.squaredMagnitude(d, e, f) > MathHelper.square(2.0E-4) || this.ticksSinceLastPositionPacketSent >= 20;
             boolean bl5 = bl4 = g != 0.0 || h != 0.0;
@@ -81,11 +85,16 @@ public class PlayerMixin {
                 this.lastX = event.getX();
                 this.lastBaseY = event.getY();
                 this.lastZ = event.getZ();
+                MoveUtil.lastX = lastX;
+                MoveUtil.lastY = lastBaseY;
+                MoveUtil.lastZ = lastZ;
                 this.ticksSinceLastPositionPacketSent = 0;
             }
             if (bl4) {
                 this.lastYaw = event.getYaw();
                 this.lastPitch = event.getPitch();
+                MoveUtil.lastYaw = lastYaw;
+                MoveUtil.lastPitch = lastPitch;
             }
             this.lastOnGround = client.player.isOnGround();
             this.autoJumpEnabled = this.client.options.getAutoJump().getValue();

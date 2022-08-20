@@ -3,6 +3,7 @@ package com.sliceclient.manager.event;
 import com.sliceclient.event.Event;
 import com.sliceclient.event.data.EventInfo;
 import lombok.Getter;
+import net.minecraft.client.MinecraftClient;
 import org.checkerframework.checker.units.qual.A;
 
 import java.lang.annotation.Annotation;
@@ -26,6 +27,9 @@ public record EventSender(Object object, Event event) {
             if(hasEventInfo(method)
                     && method.getParameterTypes().length == 1
                     && method.getParameterTypes()[0].isAssignableFrom(event.getClass())) {
+
+                if(MinecraftClient.getInstance().player == null || MinecraftClient.getInstance().world == null) return;
+
                 try {
                     method.invoke(object, event);
                 } catch (Exception e) {
