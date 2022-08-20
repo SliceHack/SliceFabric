@@ -1,8 +1,6 @@
 package com.sliceclient.module.modules.combat;
 
 import com.sliceclient.event.events.EventClientTick;
-import com.sliceclient.util.LoggerUtil;
-import net.minecraft.advancement.criterion.PlayerInteractedWithEntityCriterion;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -10,11 +8,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.Items;
-import net.minecraft.item.PickaxeItem;
 import net.minecraft.item.SwordItem;
-import net.minecraft.network.packet.c2s.play.PlayerActionC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.util.Hand;
 import org.lwjgl.glfw.GLFW;
@@ -27,8 +21,6 @@ import com.sliceclient.module.data.ModuleInfo;
 import com.sliceclient.setting.settings.BooleanValue;
 import com.sliceclient.setting.settings.ModeValue;
 import com.sliceclient.setting.settings.NumberValue;
-
-import java.util.Collection;
 
 @ModuleInfo(name = "Aura", description = "Kills players around you!", key = GLFW.GLFW_KEY_R, category = Category.COMBAT)
 @SuppressWarnings("all")
@@ -95,7 +87,7 @@ public class Aura extends Module {
         if(wait) {
             ticks++;
         }
-        if(ticks >= 5) {
+        if(ticks >= 1.5) {
             if(target == null) { wait = false; ticks = 0; return; }
             attack();
             wait = false;
@@ -370,26 +362,14 @@ public class Aura extends Module {
         float reach = (float) range.getValue().doubleValue();
 
         if(entity instanceof PlayerEntity || entity instanceof AnimalEntity || entity instanceof MobEntity || entity instanceof VillagerEntity) {
-            if(entity instanceof PlayerEntity && !player) {
-                return false;
-            }
-            if(entity instanceof AnimalEntity && !animal) {
-                return false;
-            }
-            if(entity instanceof MobEntity && !monster) {
-                return false;
-            }
-            if(entity instanceof VillagerEntity && !villager) {
-                return false;
-            }
+            if(entity instanceof PlayerEntity && !player) return false;
+            if(entity instanceof AnimalEntity && !animal) return false;
+            if(entity instanceof MobEntity && !monster) return false;
+            if(entity instanceof VillagerEntity && !villager) return false;
         }
-//        Collection<String> playerTeam = entity.getScoreboardTeam().getPlayerList();
-//        if(playerTeam.contains(entity) && team) {
-//            return false;
-//        }
-        if(entity.isInvisible() && !invis) {
-            return false;
-        }
+        if(mc.player.isTeammate(entity) && team) return false;
+
+        if(entity.isInvisible() && !invis) return false;
         return entity != mc.player && entity.isAlive() && !(entity instanceof ArmorStandEntity && entity.isInvisible());
     }
 

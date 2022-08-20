@@ -32,4 +32,34 @@ public class ModuleManager {
     public void register(Module module) {
         modules.add(module);
     }
+
+    /**
+     * Get a module by class
+     *
+     * @param clazz the class of the module
+     * @return the module
+     * */
+    public Module getModule(Class<? extends Module> clazz) {
+        return modules.stream().filter(module -> module.getClass().equals(clazz)).findFirst().orElse(null);
+    }
+
+    /**
+     * Get a module by name
+     *
+     * @param name the name of the module
+     * @return the module
+     * */
+    public Module getModule(String name) {
+        return modules.stream().filter(module -> module.getName().equals(name)).findFirst().orElse(null);
+    }
+
+
+    /**
+     * Gets Aura Module
+     *
+     * @return Aura Module
+     * */
+    public Aura getAura() {
+        return (Aura) getModule(Aura.class);
+    }
 }

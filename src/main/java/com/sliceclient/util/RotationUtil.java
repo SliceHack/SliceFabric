@@ -13,6 +13,8 @@ import net.minecraft.entity.Entity;
 @SuppressWarnings("all")
 public class RotationUtil {
 
+    public static float prevHeadPitch, headPitch;
+
     /**
      * Gets the direction the player is facing
      * */

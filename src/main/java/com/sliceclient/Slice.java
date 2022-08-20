@@ -12,6 +12,7 @@ import com.sliceclient.manager.notification.NotificationManager;
 import com.sliceclient.manager.setting.SettingsManager;
 import com.sliceclient.module.Module;
 import com.sliceclient.util.ResourceUtil;
+import com.sliceclient.util.RotationUtil;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
@@ -141,6 +142,9 @@ public enum Slice {
                 Slice.INSTANCE.ping = npi.getLatency();
             }
         }
+
+        RotationUtil.prevHeadPitch = RotationUtil.headPitch;
+        RotationUtil.headPitch = e.getPitch();
     }
 
     @EventInfo

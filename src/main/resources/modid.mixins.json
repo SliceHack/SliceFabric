@@ -4,6 +4,8 @@
   "package": "com.sliceclient.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "LivingEntityMixin",
+    "LivingEntityRendererMixin",
     "MinecraftMixin"
   ],
   "client": [

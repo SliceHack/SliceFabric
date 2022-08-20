@@ -78,8 +78,6 @@ public class Module {
 
         if(enabled) RequestHandler.addToArrayList(getMode() != null ? name + " " + getMode().getValue() : name);
         else RequestHandler.removeFromArrayList(getMode() != null ? name + " " + getMode().getValue() : name);
-
-        NotificationManager.queue(new Notification(Type.INFO, (enabled ? "Enabled" : "Disabled") + " " + name, 2));
     }
 
     /**
