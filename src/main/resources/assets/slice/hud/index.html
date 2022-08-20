@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Test</title>
+</head>
+
+<body>
+    <div class="box">
+        <div class="text">
+            Slice | Version 1.0 | God_Mode
+        </div>
+    </div>
+
+    <script>
+        window.cefQuery({
+            request: 'READY',
+            persistent: false,
+            onSuccess: function (response) { },
+            onFailure: function (error_code, error_message) { }
+        });
+
+        function updateTargetHUD(health, max, name) {
+            let iframe = document.querySelector("iframe");
+            iframe.contentWindow.postMessage({
+                health: health,
+                max: max,
+                name: name
+            }, "*");
+        }
+
+        function addNotification(name, message, seconds) {
+            let iframe = document.createElement("iframe");
+            iframe.src = "Notification/index.html?name=" + name + "&message=" + message + "&seconds=" + seconds;
+            iframe.style.border = "none";
+
+            iframe.addEventListener("load", function () {
+                setTimeout(function () {
+                    iframe.remove();
+                }, (seconds + 2) * 1000);
+            });
+            document.body.appendChild(iframe);
+        }
+
+        function getFormattedTime() {
+            var d = new Date();
+            return d.toLocaleTimeString();
+        }
+
+        function updateSessionHUD(date, players, ping, totalPlayTime, playTime) {
+            let iframe = document.querySelector("iframe[src='SessionHUD/index.html']");
+
+            iframe.contentWindow.postMessage({
+                date: date,
+                players: players,
+                ping: ping,
+                totalPlayTime: totalPlayTime,
+                playTime: playTime,
+                time: getFormattedTime()
+            }, "*");
+        }
+
+        function renameFromArrayList(value, newValue) {
+            let iframe = document.querySelector("iframe[src='ArrayList/index.html']");
+
+            iframe.contentWindow.postMessage({
+                type: "rename",
+                value: value,
+                newValue: newValue
+            }, "*");
+        }
+
+        function removeFromArrayList(value) {
+            let iframe = document.querySelector("iframe[src='ArrayList/index.html']");
+
+            iframe.contentWindow.postMessage({
+                type: "remove",
+                value: value
+            }, "*");
+        }
+
+        function addToArrayList(value) {
+            let iframe = document.querySelector("iframe[src='ArrayList/index.html']");
+
+            iframe.contentWindow.postMessage({
+                type: "add",
+                value: value
+            }, "*");
+        }
+
+    </script>
+</body>
+
+</html>
