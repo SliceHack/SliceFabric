@@ -10,6 +10,7 @@ import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.VillagerEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.ShieldItem;
 import net.minecraft.item.SwordItem;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.util.Hand;
@@ -184,12 +185,19 @@ public class Aura extends Module {
                 hasRotated = false;
             }
 
-            if (target != null) {
-
-
+            if(rotateTarget != null) {
                 boolean block = mc.player.getInventory().getMainHandStack().getItem() != null && !blockMode.getValue().equalsIgnoreCase("None");
 
                 fakeBlock = block && (blockMode.getValue().equalsIgnoreCase("Fake") || !(mc.player.getInventory().getMainHandStack().getItem() instanceof SwordItem));
+
+                boolean hasShield = mc.player.getInventory().offHand.get(0).getItem() instanceof ShieldItem || mc.player.getInventory().getMainHandStack().getItem() instanceof ShieldItem;
+
+                if(hasShield || !delay9.getValue()) {
+                    mc.interactionManager.interactItem(mc.player, mc.player.getInventory().offHand.get(0).getItem() instanceof ShieldItem ? Hand.OFF_HAND : Hand.MAIN_HAND);
+                }
+            }
+
+            if (target != null) {
 
                 deltaCps = deltaCps == cps.getValue().intValue() ? (cps.getValue().intValue() != 1 ? (cps.getValue().intValue() - 1) : 1) : cps.getValue().intValue();
 
