@@ -192,7 +192,7 @@ public class Aura extends Module {
 
                 boolean hasShield = mc.player.getInventory().offHand.get(0).getItem() instanceof ShieldItem || mc.player.getInventory().getMainHandStack().getItem() instanceof ShieldItem;
 
-                if(hasShield || !delay9.getValue()) {
+                if((hasShield || !delay9.getValue()) && !blockMode.getValue().equalsIgnoreCase("None")) {
                     mc.interactionManager.interactItem(mc.player, mc.player.getInventory().offHand.get(0).getItem() instanceof ShieldItem ? Hand.OFF_HAND : Hand.MAIN_HAND);
                 }
             }
