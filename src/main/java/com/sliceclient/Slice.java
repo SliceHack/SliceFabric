@@ -1,22 +1,29 @@
 package com.sliceclient;
 
+import com.sliceclient.api.IRC;
 import com.sliceclient.cef.Page;
 import com.sliceclient.cef.RequestHandler;
 import com.sliceclient.cef.ViewNoGui;
+import com.sliceclient.clickgui.HTMLGui;
 import com.sliceclient.event.data.EventInfo;
+import com.sliceclient.event.events.EventChat;
 import com.sliceclient.event.events.EventKey;
 import com.sliceclient.event.events.EventUpdate;
+import com.sliceclient.file.Saver;
+import com.sliceclient.manager.command.CommandManager;
 import com.sliceclient.manager.event.EventManager;
 import com.sliceclient.manager.module.ModuleManager;
 import com.sliceclient.manager.notification.NotificationManager;
 import com.sliceclient.manager.setting.SettingsManager;
 import com.sliceclient.module.Module;
+import com.sliceclient.util.MoveUtil;
 import com.sliceclient.util.ResourceUtil;
 import com.sliceclient.util.RotationUtil;
 import lombok.Getter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.PlayerListEntry;
 import net.minecraft.entity.LivingEntity;
+import org.lwjgl.glfw.GLFW;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -44,10 +51,16 @@ public enum Slice {
     private final EventManager eventManager;
     private final ModuleManager moduleManager;
     private final SettingsManager settingsManager;
+    private final CommandManager commandManager;
+
+    private final HTMLGui clickGui;
+    private Saver saver;
 
     private NotificationManager notificationManager;
 
-    private final String discordName = "Temp";
+    /** discord */
+    public String discordName = "1.19 User", discordID, discordDiscriminator;
+    public IRC irc;
 
     private final List<ViewNoGui> html = new ArrayList<>();
 
@@ -63,31 +76,41 @@ public enum Slice {
 
     public LivingEntity target;
 
+    /** alt manager */
+    public String currentEmail, currentPassword;
+
     Slice() {
         eventManager = new EventManager();
         moduleManager = new ModuleManager();
         settingsManager = new SettingsManager(moduleManager);
+        commandManager = new CommandManager(moduleManager);
+        clickGui = new HTMLGui();
+        irc = new IRC();
 
         date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
         totalTime = System.currentTimeMillis();
         startTime = System.currentTimeMillis();
         eventManager.register(this);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
     }
 
     public void init() {
         notificationManager = new NotificationManager();
+        saver = new Saver(moduleManager);
+        if(irc != null) {
 
-        File sliceDir = new File(MinecraftClient.getInstance().runDirectory, "Slice"), sliceHTML = new File(sliceDir, "html"), sliceHUD = new File(sliceHTML, "hud");
-        File html = new File(sliceHUD, "index.html"), css = new File(sliceHUD, "styles.css");
+        }
+        saver.load();
 
+        html.add(new ViewNoGui(new Page("https://assets.sliceclient.com/hud" + "?name=" + NAME + "&version=" + VERSION + "&discord=" + discordName)));
+    }
 
-        extractHTML(sliceHUD, "/slice/html/hud");
-        extractHTML(new File(sliceHUD, "TargetHUD"), "slice/html/hud/targethud");
-        extractHTML(new File(sliceHUD, "SessionHUD"), "/slice/html/hud/sessionhud");
-        extractHTML(new File(sliceHUD, "Notification"), "/slice/html/hud/notification");
-        extractHTML(new File(sliceHUD, "ArrayList"), "/slice/html/hud/arraylist");
-
-        this.html.add(new ViewNoGui(new Page("file:///" + html.getAbsolutePath() + "?name=" + NAME + "&version=" + VERSION + "&discord=" + discordName)));
+    public void stop() {
+        if(irc != null) {
+            irc.getSocket().disconnect();
+        }
+        saver.save();
     }
 
     @SuppressWarnings("all")
@@ -110,6 +133,8 @@ public enum Slice {
 
     @EventInfo
     public void onUpdate(EventUpdate e) {
+        RequestHandler.setBPS(MoveUtil.getBPS());
+
         double milliseconds = System.currentTimeMillis() - Slice.INSTANCE.startTime, milliseconds1 = System.currentTimeMillis() - Slice.INSTANCE.startTime;
         int seconds = (int) (milliseconds / 1000), seconds1 = (int) (milliseconds1 / 1000);
         int minutes = seconds / 60, minutes1 = seconds1 / 60;
@@ -148,7 +173,22 @@ public enum Slice {
     }
 
     @EventInfo
+    public void onChat(EventChat e) {
+        if(irc != null && e.getMessage().startsWith("#")) {
+            irc.sendMessage(e.getMessage().substring(1).replaceFirst(" ", ""));
+            e.setCancelled(true);
+        }
+
+        commandManager.handleChat(e);
+    }
+
+    @EventInfo
     public void onKey(EventKey e) {
+        if(e.getKey() == GLFW.GLFW_KEY_RIGHT_SHIFT) {
+            mc.setScreen(clickGui);
+        }
+
         moduleManager.getModules().stream().filter(module -> module.getKey() == e.getKey()).forEach(Module::toggle);
     }
+
 }

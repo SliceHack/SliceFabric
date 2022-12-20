@@ -48,7 +48,7 @@ public class LoggerUtil {
      * @param message The message to log.
      */
     public static void addTerminalMessage(String message) {
-        LogManager.getLogger("Slice").info(message);
+        System.out.println(message);
     }
 
     /**

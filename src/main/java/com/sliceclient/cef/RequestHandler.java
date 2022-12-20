@@ -9,15 +9,16 @@ import org.cef.browser.CefBrowser;
 
 @Getter @Setter
 public class RequestHandler {
+
     public static RequestHandler INSTANCE;
 
     public CefBrowser browser;
 
-    private boolean TargetHudShown;
-    private boolean SessionHudShown;
-
+    private boolean targetHUDShown, sessionHUDShown;
 
     public RequestHandler(CefBrowser browser) {
+        if(INSTANCE != null) return;
+
         INSTANCE = this;
         this.browser = browser;
         this.setupInfo();
@@ -26,11 +27,12 @@ public class RequestHandler {
         sendJavascript("let arraylist;");
         this.setupArrayList();
 
-        TargetHudShown = true;
+        targetHUDShown = true;
         RequestHandler.hideTargetHUD();
         this.setupSessionHUD();
-        SessionHudShown = true;
+        sessionHUDShown = true;
         RequestHandler.hideSessionHUD();
+
     }
 
     public static void addToArrayList(String text) {
@@ -51,6 +53,18 @@ public class RequestHandler {
         INSTANCE.sendJavascript("renameFromArrayList(\"" + value + "\", \"" + newValue + "\");");
     }
 
+    public static void setBPSVisible(boolean show) {
+        if(INSTANCE == null) return;
+
+        INSTANCE.sendJavascript("setBPSVisible(" + show + ");");
+    }
+
+    public static void setBPS(double bps) {
+        if(INSTANCE == null) return;
+
+        INSTANCE.sendJavascript("setBPS(\"" + bps + "\");");
+    }
+
     public void sendJavascript(String js) {
         browser.executeJavaScript(js, null, 0);
     }
@@ -65,11 +79,11 @@ public class RequestHandler {
     }
 
     public void setupTargetHUD() {
-        createIframe("TargetHUD/index.html");
+        createIframe("targethud/index.html");
     }
 
     public static void updateTargetHUD(LivingEntity target) {
-        if (!INSTANCE.TargetHudShown) return;
+        if (!INSTANCE.targetHUDShown) return;
         double health = target.getHealth();
         double max = target.getMaxHealth();
         String name = target.getName().getString();
@@ -78,43 +92,50 @@ public class RequestHandler {
     }
 
     public static void hideTargetHUD() {
-        if (!INSTANCE.TargetHudShown) return;
-        INSTANCE.TargetHudShown = false;
-        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='TargetHUD/index.html']\").style.visibility = \"hidden\";");
+        if(INSTANCE == null) return;
+        if (!INSTANCE.targetHUDShown) return;
+
+        INSTANCE.targetHUDShown = false;
+        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='targethud/index.html']\").style.visibility = \"hidden\";");
     }
 
     public static void showTargetHUD() {
-        if (INSTANCE.TargetHudShown) return;
-        INSTANCE.TargetHudShown = true;
-        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='TargetHUD/index.html']\").style.visibility = \"visible\";");
+        if(INSTANCE == null) return;
+        if (INSTANCE.targetHUDShown) return;
+
+        INSTANCE.targetHUDShown = true;
+        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='targethud/index.html']\").style.visibility = \"visible\";");
     }
 
     public void setupSessionHUD() {
-        createIframe("SessionHUD/index.html");
+        createIframe("sessionhud/index.html");
     }
     public void setupArrayList() {
-        createIframe("ArrayList/index.html");
+        createIframe("arraylist/index.html");
+    }
+    public void removeArrayList() {
+        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='arraylist/index.html']\").remove();");
     }
 
     public static void hideSessionHUD() {
-        if (!INSTANCE.SessionHudShown) return;
-        INSTANCE.SessionHudShown = false;
-        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='SessionHUD/index.html']\").style.visibility = \"hidden\";");
+        if(INSTANCE == null) return;
+        if (!INSTANCE.sessionHUDShown) return;
+        INSTANCE.sessionHUDShown = false;
+        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='sessionhud/index.html']\").style.visibility = \"hidden\";");
     }
 
     public static void showSessionHUD() {
-        if (INSTANCE.SessionHudShown) return;
-        INSTANCE.SessionHudShown = true;
-        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='SessionHUD/index.html']\").style.visibility = \"visible\";");
+        if (INSTANCE.sessionHUDShown) return;
+        INSTANCE.sessionHUDShown = true;
+        INSTANCE.sendJavascript("document.querySelector(\"iframe[src='sessionhud/index.html']\").style.visibility = \"visible\";");
     }
 
     public static void updateSessionHUD() {
-        if (!INSTANCE.SessionHudShown) return;
+        if (!INSTANCE.sessionHUDShown) return;
         INSTANCE.sendJavascript("updateSessionHUD(\"" + Slice.INSTANCE.getDate() + "\", " + Slice.INSTANCE.getPlayers() + ", " + Slice.INSTANCE.getPing() + ", \"" + Slice.INSTANCE.getTotalPlayTime() + "\", \"" + Slice.INSTANCE.getPlayTime() + "\");");
     }
 
     public static void addNotification(Notification notification) {
         INSTANCE.sendJavascript("addNotification(\"" + notification.getTitle() + "\", \"" + notification.getMessage() + "\", " + notification.getSeconds() + ");");
     }
-
 }

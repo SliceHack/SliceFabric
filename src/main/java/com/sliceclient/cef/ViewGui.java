@@ -29,7 +29,7 @@ public class ViewGui extends Screen {
 
     @Override
     public void resize(MinecraftClient client, int width, int height) {
-        if(browser != null) browser.resize(width, height);
+        if(browser != null) browser.resize(client.getWindow().getWidth(), client.getWindow().getHeight());
 
         super.resize(client, width, height);
     }
@@ -52,14 +52,23 @@ public class ViewGui extends Screen {
         } catch (Exception ignored){} // prevent crashes
     }
 
+    public void executeJavaScript(String script, String frame) {
+        if(browser != null) {
+            browser.runJS(script, frame);
+        }
+    }
+
     @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         super.render(matrices, mouseX, mouseY, delta);
 
         if(browser != null) {
+            GlStateManager._enableBlend();
+            GlStateManager._blendFunc(770, 771);
             GlStateManager._disableDepthTest();
             GlStateManager._disableTexture();
-            browser.draw(.0d, height, width, 20.d);
+            browser.draw(0, client.getWindow().getScaledHeight(), client.getWindow().getScaledWidth(), 0);
+            GlStateManager._disableBlend();
             GlStateManager._enableDepthTest();
         }
     }
@@ -137,31 +146,25 @@ public class ViewGui extends Screen {
     }
 
     public boolean mouseChanged(double mouseX, double mouseY,  int btn, double deltaX, double deltaY, double scrollAmount, boolean pressed) {
-        int sx = scaleX((int) mouseX);
+        int sx = (int) mouseX;
         int sy = (int) mouseY;
         int wheel = (int) scrollAmount;
 
         if(browser != null) {
-            int y = scaleY(sy - 20);
-
-            if(wheel != 0) browser.injectMouseWheel(sx, y, 0,  wheel, 0);
-            else if(btn == -1) browser.injectMouseMove(sx, y, 0, y < 0);
-            else browser.injectMouseButton(sx, y, 0, btn + 1, pressed, 1);
+            if(wheel != 0) browser.injectMouseWheel(sx, sy, 0,  wheel, 0);
+            else if(btn == -1) browser.injectMouseMove(sx, sy, 0, sy < 0);
+            else browser.injectMouseButton(sx, sy, 0, btn, pressed, 1);
         }
 
         return !(mouseY <= 20);
     }
 
     public int scaleY(int y) {
-        assert client != null;
-        double sy = ((double) y) / ((double) height) * ((double) client.getWindow().getHeight());
-        return (int) sy;
+        return y;
     }
 
     public int scaleX(int x) {
-        assert client != null;
-        double sx = ((double) x) / ((double) width) * ((double) client.getWindow().getWidth());
-        return (int) sx;
+        return x;
     }
 
 }

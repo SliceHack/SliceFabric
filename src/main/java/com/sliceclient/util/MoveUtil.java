@@ -71,7 +71,7 @@ public class MoveUtil {
      * */
     public double getBPS() {
         ClientPlayerEntity player = MinecraftClient.getInstance().player;
-        return MathUtil.round(((Math.hypot(x - lastX, z - lastZ) * TimerUtil.timer.tickDelta) * 20), 2);
+        return MathUtil.round(((Math.hypot(player.getX() - lastX, player.getZ() - lastZ)) * 20), 2);
     }
 
     /**

@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.object.builder.v1.client.model.FabricModelPredica
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.item.UnclampedModelPredicateProvider;
 import net.minecraft.client.render.RenderTickCounter;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.Item;
@@ -18,6 +19,7 @@ import net.minecraft.item.SwordItem;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.montoyo.mcef.MCEF;
+import net.montoyo.mcef.client.ClientProxy;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -38,9 +40,17 @@ public class MinecraftMixin {
         TimerUtil.timer = renderTickCounter;
     }
 
+    @Inject(method = "render", at = @At("HEAD"))
+    public void render(boolean tick, CallbackInfo ci) {
+        ClientProxy proxy = (ClientProxy) MCEF.PROXY;
+        proxy.onTickStart();
+    }
+
     @Inject(method = "<init>", at = @At("TAIL"))
     public void run(CallbackInfo ci) {
         Slice.INSTANCE.init();
+        EventResize event = new EventResize(MinecraftClient.getInstance().getWindow().getWidth(), MinecraftClient.getInstance().getWindow().getHeight(), MinecraftClient.getInstance().getWindow().getScaledWidth(), MinecraftClient.getInstance().getWindow().getScaledHeight(), MinecraftClient.getInstance().getWindow().getScaleFactor());
+        event.call();
     }
 
     @Inject(method = "onResolutionChanged", at = @At("TAIL"))

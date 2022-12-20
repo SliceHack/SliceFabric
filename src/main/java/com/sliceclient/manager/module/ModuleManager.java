@@ -3,6 +3,7 @@ package com.sliceclient.manager.module;
 import com.sliceclient.module.Module;
 import com.sliceclient.module.modules.combat.Aura;
 import com.sliceclient.module.modules.movement.Fly;
+import com.sliceclient.module.modules.render.FullBright;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class ModuleManager {
     public ModuleManager() {
         register(new Fly());
         register(new Aura());
+        register(new FullBright());
     }
 
     /**
@@ -50,7 +52,7 @@ public class ModuleManager {
      * @return the module
      * */
     public Module getModule(String name) {
-        return modules.stream().filter(module -> module.getName().equals(name)).findFirst().orElse(null);
+        return modules.stream().filter(module -> module.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
 

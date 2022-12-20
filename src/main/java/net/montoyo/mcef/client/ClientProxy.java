@@ -27,6 +27,7 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -131,7 +132,7 @@ public class ClientProxy extends BaseProxy {
 
         cefClient = cefApp.createClient();
 
-        Log.info(cefApp.getVersion().toString());
+        Log.info(Objects.requireNonNull(cefApp.getVersion()).toString());
         cefRouter = CefMessageRouter.create(new CefMessageRouterConfig("mcefQuery", "mcefCancel"));
         cefClient.addMessageRouter(cefRouter);
         cefClient.addDisplayHandler(displayHandler);
@@ -146,8 +147,7 @@ public class ClientProxy extends BaseProxy {
         // If shutdown patcher fail runs shutdown patcher
         // removed!
         Log.info("MCEF loaded successfuly.");
-
-        ClientTickEvents.START_CLIENT_TICK.register(client -> this.onTickStart());
+//        ClientTickEvents.START_CLIENT_TICK.register(client -> this.onTickStart());
     }
 
     public CefApp getCefApp() {

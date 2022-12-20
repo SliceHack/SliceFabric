@@ -1,5 +1,6 @@
 package com.sliceclient.mixin;
 
+import com.sliceclient.event.events.EventChat;
 import com.sliceclient.event.events.EventUpdate;
 import com.sliceclient.util.MoveUtil;
 import net.minecraft.client.MinecraftClient;
@@ -7,8 +8,10 @@ import net.minecraft.client.network.ClientPlayNetworkHandler;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.network.packet.c2s.play.ClientCommandC2SPacket;
 import net.minecraft.network.packet.c2s.play.PlayerMoveC2SPacket;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -103,6 +106,16 @@ public class PlayerMixin {
         event.call();
 
         ci.cancel();
+    }
+
+    @Inject(method = "sendChatMessageInternal", at = @At("HEAD"), cancellable = true)
+    public void sendChatMessageInternal(String message, @Nullable Text preview, CallbackInfo ci) {
+        EventChat event = new EventChat(message);
+        event.call();
+
+        if (event.isCancelled()) {
+            ci.cancel();
+        }
     }
 
     @Shadow

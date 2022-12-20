@@ -87,4 +87,12 @@ public class Module {
         return settings.stream().filter(setting -> (setting instanceof ModeValue && setting.getName().equalsIgnoreCase("mode"))).map(setting -> (ModeValue) setting).findFirst().orElse(null);
     }
 
+    /**
+     * Gets a setting by name
+     * @param name the name of the setting
+     *             - if the setting is not found, null is returned
+     * */
+    public Setting getSetting(String name) {
+        return settings.stream().filter(setting -> setting.getName().replace(" ", "").equalsIgnoreCase(name)).findFirst().orElse(null);
+    }
 }

@@ -1,6 +1,8 @@
 package com.sliceclient.module.modules.combat;
 
+import com.sliceclient.cef.RequestHandler;
 import com.sliceclient.event.events.EventClientTick;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -11,6 +13,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.SwordItem;
 import net.minecraft.network.packet.c2s.play.PlayerInteractEntityC2SPacket;
 import net.minecraft.util.Hand;
+import net.minecraft.util.math.MathHelper;
 import org.lwjgl.glfw.GLFW;
 import com.sliceclient.Slice;
 import com.sliceclient.event.data.EventInfo;
@@ -21,6 +24,8 @@ import com.sliceclient.module.data.ModuleInfo;
 import com.sliceclient.setting.settings.BooleanValue;
 import com.sliceclient.setting.settings.ModeValue;
 import com.sliceclient.setting.settings.NumberValue;
+
+import java.util.Random;
 
 @ModuleInfo(name = "Aura", description = "Kills players around you!", key = GLFW.GLFW_KEY_R, category = Category.COMBAT)
 @SuppressWarnings("all")
@@ -147,6 +152,13 @@ public class Aura extends Module {
                 case "Lock":
                     target = getTarget();
                     break;
+            }
+
+            if(rotateTarget != null) {
+                RequestHandler.updateTargetHUD(rotateTarget);
+                RequestHandler.showTargetHUD();
+            } else {
+                RequestHandler.hideTargetHUD();
             }
 
             if ((target == null || target.isDead() || target.getHealth() <= 0) && fakeBlock) {
@@ -336,19 +348,18 @@ public class Aura extends Module {
         float yaw = getBypassRotate(e)[0];
         float pitch = getBypassRotate(e)[1];
 
-        int smooth = 2;
+        float sens = 9F, newYaw = MathHelper.wrapDegrees(deltaYaw - yaw), newPitch = MathHelper.wrapDegrees(deltaPitch - pitch);
+        if (newYaw > sens) newYaw = sens;
+        if (newYaw < -sens) newYaw = -sens;
+        if (newPitch > sens) newPitch = sens;
+        if (newPitch < -sens) newPitch = -sens;
+        if (deltaPitch > 90) deltaPitch = 90;
 
-        if (deltaPitch < pitch) deltaPitch += Math.abs(pitch - deltaPitch) / smooth;
-        if(deltaPitch > pitch) deltaPitch -= Math.abs(pitch - deltaPitch) / smooth;
+        deltaYaw -= newYaw;
+        deltaPitch -= newPitch;
+        hasRotated = Math.abs(newYaw) < 0.1 && Math.abs(newPitch) < 0.1;
 
-        if (deltaYaw < yaw) deltaYaw += Math.abs(yaw - deltaYaw) / smooth;
-        if(deltaYaw > yaw) deltaYaw -= Math.abs(yaw - deltaYaw) / smooth;
-
-        ran = (((int)deltaPitch - (int)pitch) < 2) && (((int)deltaYaw - (int)yaw) < 2);
-        hasRotated = ran;
-
-
-        return new float[] { deltaYaw+(float) Math.random(), deltaPitch };
+        return new float[] { deltaYaw + new Random().nextInt(1), deltaPitch };
     }
 
     public boolean canAttack(LivingEntity entity) {
