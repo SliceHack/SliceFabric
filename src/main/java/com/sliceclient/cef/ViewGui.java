@@ -1,21 +1,23 @@
 package com.sliceclient.cef;
 
 import com.mojang.blaze3d.platform.GlStateManager;
+import com.sliceclient.SliceMain;
+import com.sliceclient.ui.HTMLMainMenu;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.util.math.MatrixStack;
+import net.montoyo.mcef.MCEF;
+import net.montoyo.mcef.api.*;
+import net.montoyo.mcef.client.ClientProxy;
+import net.montoyo.mcef.client.MessageRouter;
 import org.cef.browser.CefMessageRouter;
 import org.lwjgl.glfw.GLFW;
 
-import net.montoyo.mcef.api.API;
-import net.montoyo.mcef.api.IBrowser;
-import net.montoyo.mcef.api.MCEFApi;
-
 @Getter @Setter
 @SuppressWarnings("all")
-public class ViewGui extends Screen {
+public class ViewGui extends Screen implements IJSQueryHandler {
 
     private IBrowser browser = null;
     private CefMessageRouter messageRouter = null;
@@ -44,6 +46,7 @@ public class ViewGui extends Screen {
 
             if (api == null) return;
 
+            ((ClientProxy)(MCEF.PROXY)).cefClient.addMessageRouter(CefMessageRouter.create(new MessageRouter(this)));
             browser = api.createBrowser(url, true);
 
             if(client == null) return;
@@ -63,12 +66,10 @@ public class ViewGui extends Screen {
         super.render(matrices, mouseX, mouseY, delta);
 
         if(browser != null) {
-            GlStateManager._enableBlend();
-            GlStateManager._blendFunc(770, 771);
             GlStateManager._disableDepthTest();
-            GlStateManager._disableTexture();
-            browser.draw(0, client.getWindow().getScaledHeight(), client.getWindow().getScaledWidth(), 0);
-            GlStateManager._disableBlend();
+            GlStateManager._enableTexture();
+            GlStateManager._clearColor(1.0f, 1.0f, 1.0f, 1.0f);
+            browser.draw(.0d, height, width, 0);
             GlStateManager._enableDepthTest();
         }
     }
@@ -103,26 +104,29 @@ public class ViewGui extends Screen {
     }
 
     public boolean keyChanged(int keyCode, int scanCode, int modifiers, boolean pressed) {
-        if(client == null) return false;
+        assert client != null;
 
-        if(keyCode == GLFW.GLFW_KEY_ESCAPE) {
+        if(keyCode == GLFW.GLFW_KEY_ESCAPE && (!(this instanceof HTMLMainMenu))) {
             client.setScreen(null);
             return true;
         }
-        if(browser == null) return false;
 
-        String keyStr = GLFW.glfwGetKeyName(keyCode, scanCode);
+        String keystr = GLFW.glfwGetKeyName(keyCode, scanCode);
 
-        if(keyStr == null) return false;
+        if(keystr == null) keystr = "\0";
+        if(keyCode == GLFW.GLFW_KEY_ENTER) keystr = "\n";
+        if(keystr.length() == 0) return false;
 
-        char key = keyStr.charAt(keyStr.length() - 1);
+        char key = keystr.charAt(keystr.length() - 1);
 
+        if(browser != null) {
+            if(pressed) browser.injectKeyPressedByKeyCode(keyCode, key, 0);
+            else browser.injectKeyReleasedByKeyCode(keyCode, key, 0);
+            if(key == '\n') browser.injectKeyTyped(key, 0);
+            return true;
+        }
 
-        if(pressed) browser.injectKeyPressedByKeyCode(keyCode, key, 0);
-        else browser.injectKeyReleasedByKeyCode(keyCode, key, 0);
-
-        if(key == '\n') browser.injectKeyTyped(key, 0);
-        return true;
+        return false;
     }
 
     @Override
@@ -142,29 +146,58 @@ public class ViewGui extends Screen {
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double amount) {
-        return this.mouseChanged(mouseX, mouseY, -1, 0,0,0,false) || super.mouseScrolled(mouseX, mouseY, amount);
+        return this.mouseChanged(mouseX, mouseY, -1, 0,0, amount,false) || super.mouseScrolled(mouseX, mouseY, amount);
     }
 
-    public boolean mouseChanged(double mouseX, double mouseY,  int btn, double deltaX, double deltaY, double scrollAmount, boolean pressed) {
-        int sx = (int) mouseX;
+    @Override
+    public void mouseMoved(double mouseX, double mouseY) {
+        this.mouseChanged(mouseX, mouseY, -1,  0, 0, 0, false);
+    }
+
+    public boolean mouseChanged(double mouseX, double mouseY, int btn, double deltaX, double deltaY, double scrollAmount, boolean pressed) {
+        int sx = scaleX((int) mouseX);
         int sy = (int) mouseY;
         int wheel = (int) scrollAmount;
 
         if(browser != null) {
-            if(wheel != 0) browser.injectMouseWheel(sx, sy, 0,  wheel, 0);
-            else if(btn == -1) browser.injectMouseMove(sx, sy, 0, sy < 0);
-            else browser.injectMouseButton(sx, sy, 0, btn, pressed, 1);
+            int y = scaleY(sy);
+
+            if(wheel != 0) {
+                browser.injectMouseWheel(sx, y, 0,  wheel, 0);
+                return true;
+            }
+
+            if(btn == -1) {
+                browser.injectMouseMove(sx, y, 0, y < 0);
+                return true;
+            }
+
+            browser.injectMouseButton(sx, y, 0, btn + 1, pressed, 1);
+            return true;
         }
 
-        return !(mouseY <= 20);
+        return true;
     }
 
     public int scaleY(int y) {
-        return y;
+        assert client != null;
+        double sy = ((double) y) / ((double) height) * ((double) client.getWindow().getHeight());
+        return (int) sy;
     }
 
     public int scaleX(int x) {
-        return x;
+        assert client != null;
+        double sx = ((double) x) / ((double) width) * ((double) client.getWindow().getWidth());
+        return (int) sx;
     }
 
+    @Override
+    public boolean handleQuery(IBrowser b, long queryId, String query, boolean persistent, IJSQueryCallback cb) {
+        return false;
+    }
+
+    @Override
+    public void cancelQuery(IBrowser b, long queryId) {
+
+    }
 }

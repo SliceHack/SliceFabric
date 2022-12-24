@@ -16,6 +16,7 @@ import com.sliceclient.manager.module.ModuleManager;
 import com.sliceclient.manager.notification.NotificationManager;
 import com.sliceclient.manager.setting.SettingsManager;
 import com.sliceclient.module.Module;
+import com.sliceclient.util.LoggerUtil;
 import com.sliceclient.util.MoveUtil;
 import com.sliceclient.util.ResourceUtil;
 import com.sliceclient.util.RotationUtil;
@@ -53,7 +54,7 @@ public enum Slice {
     private final SettingsManager settingsManager;
     private final CommandManager commandManager;
 
-    private final HTMLGui clickGui;
+    private HTMLGui clickGui;
     private Saver saver;
 
     private NotificationManager notificationManager;
@@ -84,7 +85,6 @@ public enum Slice {
         moduleManager = new ModuleManager();
         settingsManager = new SettingsManager(moduleManager);
         commandManager = new CommandManager(moduleManager);
-        clickGui = new HTMLGui();
         irc = new IRC();
 
         date = (new SimpleDateFormat("dd/MM/yyyy")).format(new Date());
@@ -98,11 +98,8 @@ public enum Slice {
     public void init() {
         notificationManager = new NotificationManager();
         saver = new Saver(moduleManager);
-        if(irc != null) {
-
-        }
         saver.load();
-
+        clickGui = new HTMLGui();
         html.add(new ViewNoGui(new Page("https://assets.sliceclient.com/hud" + "?name=" + NAME + "&version=" + VERSION + "&discord=" + discordName)));
     }
 
@@ -184,6 +181,8 @@ public enum Slice {
 
     @EventInfo
     public void onKey(EventKey e) {
+        if(mc.currentScreen != null) return;
+
         if(e.getKey() == GLFW.GLFW_KEY_RIGHT_SHIFT) {
             mc.setScreen(clickGui);
         }

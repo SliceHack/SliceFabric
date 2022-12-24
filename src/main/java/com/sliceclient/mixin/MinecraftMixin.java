@@ -40,10 +40,9 @@ public class MinecraftMixin {
         TimerUtil.timer = renderTickCounter;
     }
 
-    @Inject(method = "render", at = @At("HEAD"))
+    @Inject(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/util/Window;swapBuffers()V", shift = At.Shift.BEFORE))
     public void render(boolean tick, CallbackInfo ci) {
-        ClientProxy proxy = (ClientProxy) MCEF.PROXY;
-        proxy.onTickStart();
+        ((ClientProxy)(MCEF.PROXY)).onTickStart();
     }
 
     @Inject(method = "<init>", at = @At("TAIL"))

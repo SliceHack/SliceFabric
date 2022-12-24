@@ -38,11 +38,6 @@ public class HTMLGui extends ViewGui {
         super.init();
     }
 
-    @Override
-    public void tick() {
-        ((ClientProxy) MCEF.PROXY).onTickStart();
-    }
-
     /**
      * Adds a module to the ClickGui iframe
      * (using javascript)
@@ -94,7 +89,7 @@ public class HTMLGui extends ViewGui {
      * @param js the javascript
      * */
     private void javascript(String js) {
-        executeJavaScript(js, null);
+        getBrowser().runJS(js, getBrowser().getURL());
     }
 
     /**

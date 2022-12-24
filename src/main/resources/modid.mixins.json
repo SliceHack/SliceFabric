@@ -12,7 +12,8 @@
   "client": [
     "InGameHUDMixin",
     "KeyBoardMixin",
-    "PlayerMixin"
+    "PlayerMixin",
+    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1

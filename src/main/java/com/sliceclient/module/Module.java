@@ -2,6 +2,7 @@ package com.sliceclient.module;
 
 import com.sliceclient.Slice;
 import com.sliceclient.cef.RequestHandler;
+import com.sliceclient.clickgui.HTMLGui;
 import com.sliceclient.manager.notification.NotificationManager;
 import com.sliceclient.manager.notification.Type;
 import com.sliceclient.module.data.Category;
@@ -78,6 +79,11 @@ public class Module {
 
         if(enabled) RequestHandler.addToArrayList(getMode() != null ? name + " " + getMode().getValue() : name);
         else RequestHandler.removeFromArrayList(getMode() != null ? name + " " + getMode().getValue() : name);
+
+        HTMLGui clickGui = Slice.INSTANCE.getClickGui();
+        if(clickGui != null) {
+            clickGui.setEnabled(name, enabled);
+        }
     }
 
     /**

@@ -3,6 +3,7 @@ package com.sliceclient.module.modules.combat;
 import com.sliceclient.cef.RequestHandler;
 import com.sliceclient.event.events.EventClientTick;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.decoration.ArmorStandEntity;
@@ -90,9 +91,10 @@ public class Aura extends Module {
 
     @EventInfo
     public void onTick(EventClientTick e) {
-        if(wait) {
-            ticks++;
-        }
+        if(mc.player.isDead()) return;
+
+        if(wait) ticks++;
+
         if(ticks >= 1.5) {
             if(target == null) { wait = false; ticks = 0; return; }
             attack();
@@ -103,6 +105,7 @@ public class Aura extends Module {
 
     @EventInfo
     public void onUpdate(EventUpdate e) {
+        if(mc.player.isDead()) return;
 
         if (rotateTarget == null) {
             deltaYaw = mc.player.getYaw();
